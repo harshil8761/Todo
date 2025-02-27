@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo-List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form> <!-- step 1 -->
+        <div>
+            <input type="text" id="inputValue" />   
+            <button class="btn">Add Todo</button>
+        </div>
+        <section class="todo-item"></section>
+    </form>
+    <script>
+        let inputValue = document.getElementById("inputValue");  // step 2
+        let todoItem = document.querySelector(".todo-item");  // step 2
+        let btn = document.querySelector(".btn");  // step 2
+
+        const getTodoListLocal = () => {
+            return JSON.parse(localStorage.getItem("TodoListStorage"));  // step 5
+        }
+
+        const addTodoLocalStorage = (localTodoLists) => {
+            return localStorage.setItem("TodoListStorage",JSON.stringify(localTodoLists));
+        }
+
+        let localStorageList = getTodoListLocal() || [];  // store in array value in todolist
+
+        //adding list daynamicly
+
+        const addTodoDynamiclyElem = (curElem) => {
+            const divElem = document.createElement("div");  //create a new div element
+            divElem.classList.add("main-tudo-div"); // add a class of div 
+            divElem.innerHTML = `<li>${curElem}</li><button class="deleteBtn">Delete</button>`; 
+            todoItem.append(divElem); // add the value of divElem    
+        }
+
+        const addTodoList = (e) => {    // step 4
+            e.preventDefault();
+            const todoListValue = inputValue.value.trim();
+
+            inputValue.value = "";
+
+            if(todoListValue !== "" && !localStorageList.includes(todoListValue)){
+            localStorageList.push(todoListValue); // add array last element
+            localStorageList = [...new Set(localStorageList)];
+            console.log(localStorageList);
+            localStorage.setItem("TodoListStorage",JSON.stringify(localStorageList)) 
+            
+            addTodoDynamiclyElem(todoListValue); // function reusable 2 time
+            }
+        }
+
+        const showList = () => {  // step 6
+            console.log(localStorageList);
+            localStorageList.forEach((curElem) => {
+                addTodoDynamiclyElem(curElem);
+            });
+        }
+        showList();
+
+        const removeList = (e) => {   // step 7
+            const todoToremove = e.target;
+            let todolistContent = todoToremove.previousElementSibling.innerText;  
+            let parentElem = todoToremove.parentElement;         
+            console.log(todolistContent);
+            localStorageList = localStorageList.filter((curTodo) => {
+                return curTodo !== todolistContent;
+            })
+
+            addTodoLocalStorage(localStorageList);
+            parentElem.remove();
+            console.log(localStorageList);
+            
+        }
+
+        todoItem.addEventListener("click",(e) => {  // step 8
+            e.preventDefault();
+            if(e.target.classList.contains("deleteBtn")){
+                removeList(e);
+            }
+        })
+
+        btn.addEventListener("click", (e) => {  // step 3
+                addTodoList(e);     
+        })
+    </script>
+</body>
+</html>
